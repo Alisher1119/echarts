@@ -1,6 +1,6 @@
 {
-  "name": "echarts",
-  "version": "6.0.0",
+  "name": "@Alisher1119/echarts",
+  "version": "1.0.0",
   "description": "Apache ECharts is a powerful, interactive charting and data visualization library for browser",
   "license": "Apache-2.0",
   "keywords": [
@@ -12,7 +12,9 @@
     "apache",
     "data-viz",
     "canvas",
-    "svg"
+    "svg",
+    "legend-columns",
+    "subtext-positioning"
   ],
   "main": "dist/echarts.js",
   "module": "index.js",
@@ -21,12 +23,12 @@
   "types": "types/dist/echarts.d.cts",
   "homepage": "https://echarts.apache.org",
   "bugs": {
-    "url": "https://github.com/apache/echarts/issues",
+    "url": "https://github.com/alisher1119/echarts/issues",
     "email": "dev@echarts.apache.org"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/apache/echarts.git"
+    "url": "git+https://github.com/alisher1119/echarts.git"
   },
   "sideEffects": [
     "index.js",
