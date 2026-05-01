@@ -533,7 +533,8 @@ class LegendView extends ComponentView {
             contentGroup,
             legendModel.get('itemGap'),
             maxSize.width,
-            maxSize.height
+            maxSize.height,
+            legendModel.get('columns')
         );
 
         const contentRect = contentGroup.getBoundingRect();

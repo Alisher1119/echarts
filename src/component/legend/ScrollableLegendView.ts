@@ -250,7 +250,8 @@ class ScrollableLegendView extends LegendView {
             contentGroup,
             legendModel.get('itemGap'),
             !orientIdx ? null : maxSize.width,
-            orientIdx ? null : maxSize.height
+            orientIdx ? null : maxSize.height,
+            legendModel.get('columns')
         );
 
         layoutUtil.box(
@@ -413,9 +414,34 @@ class ScrollableLegendView extends LegendView {
         const wh = WH[orientIdx];
         const xy = XY[orientIdx];
 
-        const targetItemIndex = this._findTargetItemIndex(scrollDataIndex);
-        const children = contentGroup.children();
-        const targetItem = children[targetItemIndex];
+        function getItemInfo(el: Element): ItemInfo {
+            if (el) {
+                const itemRect = el.getBoundingRect();
+                const start = itemRect[xy] + el[xy];
+                return {
+                    s: start,
+                    e: start + itemRect[wh],
+                    i: (el as LegendItemElement).__legendDataIndex
+                };
+            }
+        }
+
+        function intersect(itemInfo: ItemInfo, winStart: number) {
+            return itemInfo.e >= winStart && itemInfo.s <= winStart + containerRectSize;
+        }
+
+        const originalChildren = contentGroup.children();
+        const targetItemIndexInOriginal = this._findTargetItemIndex(scrollDataIndex);
+        const targetItem = originalChildren[targetItemIndexInOriginal];
+
+        const children = originalChildren.slice();
+        children.sort((a, b) => {
+            const aInfo = getItemInfo(a);
+            const bInfo = getItemInfo(b);
+            return (aInfo ? aInfo.s : 0) - (bInfo ? bInfo.s : 0);
+        });
+
+        const targetItemIndex = zrUtil.indexOf(children, targetItem);
         const itemCount = children.length;
         const pCount = !itemCount ? 0 : 1;
 
@@ -503,22 +529,6 @@ class ScrollableLegendView extends LegendView {
         }
 
         return result;
-
-        function getItemInfo(el: Element): ItemInfo {
-            if (el) {
-                const itemRect = el.getBoundingRect();
-                const start = itemRect[xy] + el[xy];
-                return {
-                    s: start,
-                    e: start + itemRect[wh],
-                    i: (el as LegendItemElement).__legendDataIndex
-                };
-            }
-        }
-
-        function intersect(itemInfo: ItemInfo, winStart: number) {
-            return itemInfo.e >= winStart && itemInfo.s <= winStart + containerRectSize;
-        }
     }
 
     _findTargetItemIndex(targetDataIndex: number) {

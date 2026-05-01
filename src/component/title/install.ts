@@ -22,6 +22,7 @@ import * as graphic from '../../util/graphic';
 import {getECData} from '../../util/innerStore';
 import {createTextStyle} from '../../label/labelStyle';
 import {createBoxLayoutReference, getLayoutRect} from '../../util/layout';
+import {parsePercent} from '../../util/number';
 import ComponentModel from '../../model/Component';
 import {
     ComponentOption,
@@ -41,8 +42,7 @@ import {windowOpen} from '../../util/format';
 import { EChartsExtensionInstallRegisters } from '../../extension';
 import tokens from '../../visual/tokens';
 
-interface TitleTextStyleOption extends LabelOption {
-    width?: number
+interface TitleTextStyleOption extends LabelOption, Omit<BoxLayoutOptionMixin, 'width' | 'height'> {
 }
 
 export interface TitleOption extends
@@ -177,11 +177,93 @@ class TitleView extends ComponentView {
             style: createTextStyle(subtextStyleModel, {
                 text: subText,
                 fill: subtextStyleModel.getTextColor(),
-                y: textRect.height + titleModel.get('itemGap'),
                 verticalAlign: 'top'
             }, {disableBox: true}),
             z2: 10
         });
+
+        const subTextRect = subTextEl.getBoundingRect();
+        const itemGap = titleModel.get('itemGap');
+        let subtextX = 0;
+        let subtextY = textRect.height + itemGap;
+
+        const subtextLeft = subtextStyleModel.get('left');
+        const subtextRight = subtextStyleModel.get('right');
+        const subtextTop = subtextStyleModel.get('top');
+        const subtextBottom = subtextStyleModel.get('bottom');
+
+        if (subtextTop != null) {
+            if (subtextTop === 'top') {
+                subtextY = -subTextRect.height - itemGap;
+            }
+            else if (subtextTop === 'bottom') {
+                subtextY = textRect.height + itemGap;
+            }
+            else if (subtextTop === 'middle') {
+                subtextY = (textRect.height - subTextRect.height) / 2;
+            }
+            else {
+                subtextY = parsePercent(subtextTop, textRect.height);
+            }
+        }
+        else if (subtextBottom != null) {
+            if (subtextBottom === 'top') {
+                subtextY = -subTextRect.height - itemGap;
+            }
+            else if (subtextBottom === 'bottom') {
+                subtextY = textRect.height + itemGap;
+            }
+            else if (subtextBottom === 'middle') {
+                subtextY = (textRect.height - subTextRect.height) / 2;
+            }
+            else {
+                subtextY = textRect.height - subTextRect.height - parsePercent(subtextBottom, textRect.height);
+            }
+        }
+
+        if (subtextLeft != null) {
+            if (subtextLeft === 'left') {
+                subtextX = -subTextRect.width - itemGap;
+                if (subtextTop == null && subtextBottom == null) {
+                    subtextY = 0;
+                }
+            }
+            else if (subtextLeft === 'right') {
+                subtextX = textRect.width + itemGap;
+                if (subtextTop == null && subtextBottom == null) {
+                    subtextY = 0;
+                }
+            }
+            else if (subtextLeft === 'center') {
+                subtextX = (textRect.width - subTextRect.width) / 2;
+            }
+            else {
+                subtextX = parsePercent(subtextLeft, textRect.width);
+            }
+        }
+        else if (subtextRight != null) {
+            if (subtextRight === 'left') {
+                subtextX = -subTextRect.width - itemGap;
+                if (subtextTop == null && subtextBottom == null) {
+                    subtextY = 0;
+                }
+            }
+            else if (subtextRight === 'right') {
+                subtextX = textRect.width + itemGap;
+                if (subtextTop == null && subtextBottom == null) {
+                    subtextY = 0;
+                }
+            }
+            else if (subtextRight === 'center') {
+                subtextX = (textRect.width - subTextRect.width) / 2;
+            }
+            else {
+                subtextX = textRect.width - subTextRect.width - parsePercent(subtextRight, textRect.width);
+            }
+        }
+
+        subTextEl.y = subtextY;
+        subTextEl.x = subtextX;
 
         const link = titleModel.get('link');
         const sublink = titleModel.get('sublink');

@@ -31,6 +31,7 @@ import {
     CommonTooltipOption,
     ItemStyleOption,
     LineStyleOption,
+    RichTextOption,
     ComponentOnCalendarOptionMixin,
     ComponentOnMatrixOptionMixin
 } from '../../util/types';
@@ -117,6 +118,8 @@ export interface LegendStyleOption {
 
     textStyle?: LabelOption
 
+    rich?: RichTextOption
+
     symbolRotate?: number | 'inherit'
 
     /**
@@ -197,6 +200,11 @@ export interface LegendOption extends ComponentOption, LegendStyleOption,
      * Height of legend symbol
      */
     itemHeight?: number
+
+    /**
+     * Divide legend items into multiple columns.
+     */
+    columns?: number
 
     selectedMode?: boolean | 'single' | 'multiple'
     /**

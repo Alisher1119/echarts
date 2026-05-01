@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script src="lib/simpleRequire.js"></script>
+        <script src="lib/config.js"></script>
+        <script src="lib/jquery.min.js"></script>
+        <script src="lib/facePrint.js"></script>
+        <script src="lib/testHelper.js"></script>
+        <link rel="stylesheet" href="lib/reset.css" />
+    </head>
+    <body>
+        <style>
+            .chart {
+                width: 100%;
+                height: 400px;
+                margin-bottom: 30px;
+            }
+        </style>
+
+        <div id="main-bar"></div>
+        <div id="main-pie"></div>
+        <div id="main-scroll"></div>
+        <div id="main-rich"></div>
+
+        <script>
+        require(['echarts'], function (echarts) {
+
+            // 1. Bar Chart with Vertical Multi-Column Legend
+            (function () {
+                var option = {
+                    title: {
+                        text: 'Bar Chart: Vertical 3-Column Legend'
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        columns: 3,
+                        left: 'center',
+                        bottom: 10,
+                        backgroundColor: 'rgba(0,0,0,0.05)',
+                        padding: 10,
+                        data: ['Bar 1', 'Bar 2', 'Bar 3', 'Bar 4', 'Bar 5', 'Bar 6', 'Bar 7', 'Bar 8', 'Bar 9']
+                    },
+                    xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed'] },
+                    yAxis: { type: 'value' },
+                    series: [
+                        { name: 'Bar 1', type: 'bar', data: [120, 200, 150] },
+                        { name: 'Bar 2', type: 'bar', data: [130, 210, 160] },
+                        { name: 'Bar 3', type: 'bar', data: [140, 220, 170] },
+                        { name: 'Bar 4', type: 'bar', data: [150, 230, 180] },
+                        { name: 'Bar 5', type: 'bar', data: [160, 240, 190] },
+                        { name: 'Bar 6', type: 'bar', data: [170, 250, 200] },
+                        { name: 'Bar 7', type: 'bar', data: [180, 260, 210] },
+                        { name: 'Bar 8', type: 'bar', data: [190, 270, 220] },
+                        { name: 'Bar 9', type: 'bar', data: [200, 280, 230] }
+                    ]
+                };
+
+                testHelper.create(echarts, 'main-bar', {
+                    title: [
+                        'Vertical Legend with columns: 3',
+                        'Items should be distributed into 3 columns (3 items per column)'
+                    ],
+                    option: option
+                });
+            })();
+
+            // 2. Pie Chart with Horizontal Grid Legend
+            (function () {
+                var option = {
+                    title: {
+                        text: 'Pie Chart: Horizontal 4-Items-Per-Row Legend'
+                    },
+                    legend: {
+                        orient: 'horizontal',
+                        columns: 4,
+                        right: 10,
+                        top: 'middle',
+                        width: 300,
+                        backgroundColor: 'rgba(0,0,0,0.05)',
+                        padding: 10
+                    },
+                    series: [
+                        {
+                            name: 'Access Source',
+                            type: 'pie',
+                            radius: '50%',
+                            data: [
+                                { value: 1048, name: 'Search Engine' },
+                                { value: 735, name: 'Direct' },
+                                { value: 580, name: 'Email' },
+                                { value: 484, name: 'Union Ads' },
+                                { value: 300, name: 'Video Ads' },
+                                { value: 200, name: 'Baidu' },
+                                { value: 150, name: 'Google' },
+                                { value: 100, name: 'Bing' }
+                            ]
+                        }
+                    ]
+                };
+
+                testHelper.create(echarts, 'main-pie', {
+                    title: [
+                        'Horizontal Legend with columns: 4',
+                        'Should force a newline after every 4 items'
+                    ],
+                    option: option
+                });
+            })();
+
+            // 3. Scrollable Legend with Columns
+            (function () {
+                var data = [];
+                var series = [];
+                for (var i = 1; i <= 20; i++) {
+                    data.push('Item ' + i);
+                    series.push({
+                        name: 'Item ' + i,
+                        type: 'line',
+                        data: [Math.random() * 10]
+                    });
+                }
+
+                var option = {
+                    title: {
+                        text: 'Scrollable Legend with 2 Columns'
+                    },
+                    legend: {
+                        type: 'scroll',
+                        orient: 'vertical',
+                        columns: 2,
+                        right: 10,
+                        top: 'center',
+                        height: 150,
+                        backgroundColor: 'rgba(0,0,0,0.05)',
+                        data: data
+                    },
+                    xAxis: { type: 'category' },
+                    yAxis: { type: 'value' },
+                    series: series
+                };
+
+                testHelper.create(echarts, 'main-scroll', {
+                    title: [
+                        'Scrollable Vertical Legend with columns: 2',
+                        'Items should be in 2 columns within the scrollable area'
+                    ],
+                    option: option
+                });
+            })();
+
+            // 4. Legend with Rich Text
+            (function () {
+                var option = {
+                    title: {
+                        text: 'Legend with Rich Text'
+                    },
+                    legend: {
+                        data: ['Item A', 'Item B'],
+                        formatter: function (name) {
+                            return '{name|' + name + '} {value|' + (name === 'Item A' ? 100 : 200) + '}';
+                        },
+                        rich: {
+                            name: {
+                                color: 'red',
+                                fontWeight: 'bold'
+                            },
+                            value: {
+                                color: 'blue',
+                                fontFamily: 'monospace',
+                                backgroundColor: '#eee',
+                                padding: [2, 4],
+                                borderRadius: 3
+                            }
+                        }
+                    },
+                    series: [
+                        { name: 'Item A', type: 'bar', data: [10] },
+                        { name: 'Item B', type: 'bar', data: [20] }
+                    ]
+                };
+
+                testHelper.create(echarts, 'main-rich', {
+                    title: [
+                        'Legend with rich text in formatter',
+                        'Styles defined directly in legend.rich (not under textStyle)'
+                    ],
+                    option: option
+                });
+            })();
+
+        });
+        </script>
+    </body>
+</html>

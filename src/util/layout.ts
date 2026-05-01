@@ -73,7 +73,8 @@ function boxLayout(
     group: Group,
     gap: number,
     maxWidth?: number,
-    maxHeight?: number
+    maxHeight?: number,
+    columns?: number
 ) {
     let x = 0;
     let y = 0;
@@ -86,23 +87,46 @@ function boxLayout(
     }
     let currentLineMaxSize = 0;
 
+    let itemsPerLine = Infinity;
+    if (columns > 0) {
+        if (orient === 'vertical') {
+            let totalItems = 0;
+            group.eachChild(child => {
+                if (!(child as NewlineElement).newline) {
+                    totalItems++;
+                }
+            });
+            itemsPerLine = Math.ceil(totalItems / columns);
+        }
+        else {
+            itemsPerLine = columns;
+        }
+    }
+
+    let itemCount = 0;
+
     group.eachChild(function (child, idx) {
+        const isNewline = (child as NewlineElement).newline;
         const rect = child.getBoundingRect();
         const nextChild = group.childAt(idx + 1);
         const nextChildRect = nextChild && nextChild.getBoundingRect();
         let nextX: number;
         let nextY: number;
 
+        if (!isNewline) {
+            itemCount++;
+        }
+
         if (orient === 'horizontal') {
             const moveX = rect.width + (nextChildRect ? (-nextChildRect.x + rect.x) : 0);
             nextX = x + moveX;
-            // Wrap when width exceeds maxWidth or meet a `newline` group
-            // FIXME compare before adding gap?
-            if (nextX > maxWidth || (child as NewlineElement).newline) {
+            // Wrap when width exceeds maxWidth or meet a `newline` group or exceeds columns
+            if (nextX > maxWidth || isNewline || itemCount > itemsPerLine) {
                 x = 0;
                 nextX = moveX;
                 y += currentLineMaxSize + gap;
-                currentLineMaxSize = rect.height;
+                currentLineMaxSize = isNewline ? 0 : rect.height;
+                itemCount = isNewline ? 0 : 1;
             }
             else {
                 // FIXME: consider rect.y is not `0`?
@@ -112,19 +136,20 @@ function boxLayout(
         else {
             const moveY = rect.height + (nextChildRect ? (-nextChildRect.y + rect.y) : 0);
             nextY = y + moveY;
-            // Wrap when width exceeds maxHeight or meet a `newline` group
-            if (nextY > maxHeight || (child as NewlineElement).newline) {
+            // Wrap when width exceeds maxHeight or meet a `newline` group or exceeds columns
+            if (nextY > maxHeight || isNewline || itemCount > itemsPerLine) {
                 x += currentLineMaxSize + gap;
                 y = 0;
                 nextY = moveY;
-                currentLineMaxSize = rect.width;
+                currentLineMaxSize = isNewline ? 0 : rect.width;
+                itemCount = isNewline ? 0 : 1;
             }
             else {
                 currentLineMaxSize = Math.max(currentLineMaxSize, rect.width);
             }
         }
 
-        if ((child as NewlineElement).newline) {
+        if (isNewline) {
             return;
         }
 
